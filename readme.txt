@@ -1,6 +1,6 @@
 === Vidy ===
 Contributors: vidyteam
-Stable tag: 1.0.0
+Stable tag: 1.0.2
 Tested up to: 5.4
 Requires at least: 4.6
 License: GPLv2 or later
@@ -27,6 +27,12 @@ All you have to do, to insert Vidy into your website is:
 *	Activate the plugin through the 'Plugins' screen in WordPress
 
 == Changelog ==
+
+= 1.0.2 =
+Use `wp_enqueue_script`
+
+= 1.0.1 =
+Initial Release
 
 = 1.0.0 =
 Initial Release

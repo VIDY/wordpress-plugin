@@ -2,7 +2,7 @@
 
 /**
  * @package Vidy
- * @version 1.0.0
+ * @version 1.0.2
  */
 
 /*
@@ -10,7 +10,7 @@
 	Plugin URI: http://wordpress.org/plugins/vidy/
 	Description: With just a hold, users can now reveal tiny hyper-relevant videos hidden behind the text of any page on the web, unlocking a whole new dimension to the internet.
 	Author: Vidy
-	Version: 1.0.0
+	Version: 1.0.2
 	Author URI: https://www.vidy.com
 	Text Domain: vidy
 	Domain Path: /languages
@@ -109,7 +109,7 @@ class VidySettings {
 	public function content_callback() {
 		printf(
 			'<input class="regular-text" type="text" name="vidy_settings_option_name[content]" id="content" value="%s">
-			<p class="description" id="appid-description">'.__('Specify a content selector, this specifies where Vidy can draw highlights','vidy').'</p>',
+			<p class="description" id="appid-description">'.__('Specify a CSS selector where Vidy can draw highlights. Leave this blank to enable highlights on the entire post.','vidy').'</p>',
 			isset( $this->vidy_settings_options['content'] ) ? esc_attr( $this->vidy_settings_options['content']) : ''
 		);
 	}
@@ -118,34 +118,29 @@ class VidySettings {
 if ( is_admin() )
 	$vidy_settings = new VidySettings();
 
+
 // Method for front end
 function vidy_hook() {
-	$js_script = "
-<script src='https://static.vidy.com/embed.min.js'></script>
-<script>
-	var vidy = new Vidy({
-		appid: '#appid',
-		postid: '#postid',
-		content: '#content',
-		autoload: true
-	});
-</script>
-";
-
-
+	$js_script = "var vidy = new Vidy({ appid: '#appid', postid: '#postid', content: '#content' });";
 	$vidy_settings_options = get_option( 'vidy_settings_option_name' );
-	$appid = $vidy_settings_options['appid']; // Appid
-	$content = $vidy_settings_options['content'];// Content
 
+	$appid = $vidy_settings_options['appid'];
+	$content = $vidy_settings_options['content'];
+	
 	$js_script = str_replace("#appid", $appid, $js_script);
 	$js_script = str_replace("#postid", get_queried_object_id(), $js_script);
 	$js_script = str_replace("#content", $content, $js_script);
-
-	echo $js_script;
-
+	
+	return $js_script;
 }
 
-add_action('wp_head', 'vidy_hook', 1000);
+
+function vidy_enqueue_script() {
+   wp_enqueue_script( 'vidy-script', 'https://static.vidy.com/embed.min.js', array(), null);
+   wp_add_inline_script( 'vidy-script', vidy_hook());
+}
+add_action( 'wp_enqueue_scripts', 'vidy_enqueue_script' );
+
 add_action( 'plugins_loaded', 'vidy_i18n' );
 /**
  * Load locales.
